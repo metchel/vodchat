@@ -1,0 +1,7 @@
+<ul>
+{% for video in videos %}
+    <li> {{ video.id }} </li>
+{% empty %}
+    <li>No videos.</li>
+{% endfor %}
+</ul>

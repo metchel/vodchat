@@ -1,0 +1,7 @@
+<h1>{{ video.title }}</h1>
+<p>{{ video.date_created }}</p>
+<p>{{ video.description }}</p>
+<video width="50%" controls>
+    <source src='{{ MEDIA_URL }}{{ video.videofile}}' type='video/mp4'>
+    Video is unsupported in this browser.
+</video>

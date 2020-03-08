@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.contrib.auth.decorators import login_required
 from .forms import UploadVideoForm
 from .models import Video
 
@@ -7,6 +8,7 @@ def index(request):
     videos = Video.objects.all()
     return render(request, 'videos/home.html', { 'videos': videos })
 
+@login_required
 def upload_video(request):
     if request.method == 'POST':
         form = UploadVideoForm(request.POST, request.FILES)

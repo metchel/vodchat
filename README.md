@@ -15,3 +15,5 @@ The following endpoints have been implemented:
     localhost:8000/videos/ [ A list of all the video ids that are in the database ]
     localhost:8000/videos/upload [ Upload a new video ]
     localhost:8000/videos/watch?abc123 [ Watch the video that has the id "abc123" ]
+    localhost:8000/accounts/ [ Create an account ]
+    localhost:8000/accounts/login [ Log in ]

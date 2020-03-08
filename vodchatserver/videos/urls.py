@@ -6,3 +6,5 @@ urlpatterns = [
     path('upload', views.upload_video, name='upload'),
     path('watch', views.watch_video, name='watch'),
 ]
+
+app_name = 'videos'

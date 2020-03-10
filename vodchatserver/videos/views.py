@@ -1,9 +1,10 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect, Http404, JsonResponse
 from django.contrib.auth.decorators import login_required
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 from .forms import UploadVideoForm, NewCommentForm
 from .models import Video, Comment
-
 import json
 
 def index(request):
@@ -41,6 +42,26 @@ def add_comment(request):
             new_comment.creator = request.user
             new_comment.save()
             form.save_m2m()
+
+            layer = get_channel_layer()
+
+            room_group_name = 'video_%s' % new_comment.video_id.id
+
+            print(room_group_name)
+            async_to_sync(layer.group_send)(room_group_name, {
+                'type': 'send.message',
+                'message': {
+                    'type': "NEW_COMMENT",
+                    'comment': {
+                        'id': new_comment.id,
+                        'creator': new_comment.creator.get_username(),
+                        'upvotes': new_comment.upvotes,
+                        'downvotes': new_comment.downvotes,
+                        'timestamp': new_comment.timestamp,
+                        'text': new_comment.text
+                    }
+                }
+            })
             return HttpResponse()
         else:
             raise Exception("Adding comment failed.")

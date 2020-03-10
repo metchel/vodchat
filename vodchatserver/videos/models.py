@@ -19,6 +19,10 @@ class Comment(models.Model):
     video_id = models.ForeignKey(Video, on_delete=models.CASCADE)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
     text = models.CharField(max_length=4096)
-    upvotes = models.IntegerField(default=0)
-    downvotes = models.IntegerField(default=0)
     timestamp = models.FloatField(default=0.0)
+
+class Vote(models.Model):
+    video_id = models.ForeignKey(Video, on_delete=models.CASCADE)
+    voter = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
+    comment_id = models.ForeignKey(Comment, on_delete=models.CASCADE)
+    vote = models.IntegerField(default=0)

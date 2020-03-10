@@ -16,11 +16,13 @@
     const username = "{{ user.get_username }}";
 
     {% verbatim %}
+
     Vue.component('comment-feed', {
         
         data: function() {
             return {
                 comments: [],
+                votes: [],
                 username: username,
                 video: video,
                 video_id: video_id,
@@ -30,7 +32,7 @@
         
         template: `
             <div>
-                <form name="newCommentForm" ref="form" action="/videos/comment" method="POST" v-on:submit="submit">
+                <form name="newCommentForm" ref="form" action="comment" method="POST" v-on:submit="submit">
                     {% endverbatim %}
                     {% csrf_token %}
                     {% verbatim %}
@@ -41,12 +43,17 @@
                         <input type="submit" value="Post Comment"/>
                     </div>
                 </form>
+                <form name="voteForm" ref="voteForm" action="vote" method="POST" v-on:submit.prevent>
+                    {% endverbatim %}
+                    {% csrf_token %}
+                    {% verbatim %}
+                </form>
                 <ul v-if="comments.length">
                     <li v-for="comment in comments">
                         <strong>{{ comment.creator }}:</strong> 
                         {{ comment.text }}
-                        <button v-on:click="upvote(comment.id)">UP</button>{{ comment.upvotes }}
-                        <button v-on:click="downvote(comment.id)">DOWN</button>{{ comment.downvotes }}     
+                        <input type="submit" value="UP" v-on:click="doUpvote(comment.id, video_id)"/>{{ comment.upvotes }}
+                        <input type="submit" value="DOWN" v-on:click="doDownvote(comment.id, video_id)"/>{{ comment.downvotes }}
                     </li>
                 </ul>
             </div>`,
@@ -71,10 +78,10 @@
                         el.newComment(message['comment']);
                         break;
                     case "UPVOTE":
-                        el.upvote(message['commentId']);
+                        el.upvote(message['comment_id']);
                         break;
                     case "DOWNVOTE":
-                        el.downvote(message['commentId']);
+                        el.downvote(message['comment_id']);
                         break;
                     default:
                         break;
@@ -97,6 +104,7 @@
             },
 
             upvote: function(commentId) {
+                console.log("upvote!");
                 let el = this;
                 el.comments.forEach(comment => {
                     if (comment.id === commentId) {
@@ -107,14 +115,38 @@
             },
 
             downvote: function(commentId) {
+                console.log("downvote!");
                 let el = this;
                 el.comments.forEach(comment => {
                     if (comment.id === commentId) {
-                        comment.downvotes--;
+                        comment.downvotes++;
                     }
                 });
             },
-            
+
+            doUpvote: function(commentId, videoId) {
+                this.submitVote(commentId, videoId, 1);
+            },
+
+            doDownvote: function(commentId, videoId) {
+                this.submitVote(commentId, videoId, -1);
+            },
+
+            submitVote: function(commentId, videoId, vote) {
+                let el = this;
+                let form = el.$refs.voteForm;
+
+                let formData = new FormData(form);
+                formData.set("comment_id", commentId);
+                formData.set("video_id", videoId);
+                formData.set("vote", vote);
+                
+                fetch(form.action, {
+                    method: form.method,
+                    body: formData
+                });
+            },
+
             submit: function(e) {
                 let el = this;
                 e.preventDefault();
@@ -124,7 +156,7 @@
                     method: form.method,
                     body: new FormData(form)
                 });
-            }
+            },
         }
     });
 

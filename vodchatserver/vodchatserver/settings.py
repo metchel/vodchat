@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',
     'videos',
     'accounts',
 ]
@@ -71,6 +72,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'vodchatserver.wsgi.application'
+ASGI_APPLICATION = 'vodchatserver.routing.application'
 
 
 # Database

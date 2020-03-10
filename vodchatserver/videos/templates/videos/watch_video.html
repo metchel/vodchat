@@ -1,7 +1,136 @@
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 <h1>{{ video.title }}</h1>
+<p>{{ video.creator }}</p>
 <p>{{ video.date_created }}</p>
 <p>{{ video.description }}</p>
-<video width="50%" controls>
+<video id="the-video" width="50%" controls>
     <source src='{{ MEDIA_URL }}{{ video.videofile}}' type='video/mp4'>
     Video is unsupported in this browser.
 </video>
+<div id="app">
+    <comment-feed></comment-feed>
+</div>
+<script>
+    const video = document.getElementById("the-video");
+    const video_id = "{{ video.id }}";
+    const username = "{{ user.get_username }}";
+
+    {% verbatim %}
+    Vue.component('comment-feed', {
+        
+        data: function() {
+            return {
+                comments: [],
+                username: username,
+                video: video,
+                video_id: video_id,
+                ws: new WebSocket('ws://' + window.location.host + '/ws/feed/' + video_id + '/'),
+            };
+        },
+        
+        template: `
+            <div>
+                <form name="newCommentForm" ref="form" action="/videos/comment" method="POST" v-on:submit="submit">
+                    {% endverbatim %}
+                    {% csrf_token %}
+                    {% verbatim %}
+                    <div>
+                        <strong>{{ username }}:</strong> <textarea name="text"/>
+                        <input type="hidden" name="timestamp" :value="video.currentTime"/>
+                        <input type="hidden" name="video_id" :value="video_id"/>
+                        <input type="submit" value="Post Comment"/>
+                    </div>
+                </form>
+                <ul v-if="comments.length">
+                    <li v-for="comment in comments">
+                        <strong>{{ comment.creator }}:</strong> 
+                        {{ comment.text }}
+                        <button v-on:click="upvote(comment.id)">UP</button>{{ comment.upvotes }}
+                        <button v-on:click="downvote(comment.id)">DOWN</button>{{ comment.downvotes }}     
+                    </li>
+                </ul>
+            </div>`,
+            
+        beforeMount: function() {
+            let el = this;
+
+            fetch("/videos/comment?video_id=" + el.video_id)
+                .then(res => res.json())
+                .then(json => json['comments'])
+                .then(comments => {
+                    console.log(comments);
+                    el.comments = comments; 
+            });
+
+            el.ws.onmessage = function(e) {
+                const data = JSON.parse(e.data);
+                const message = data['message'];
+                const messageType = message['type'];
+                switch(messageType) {
+                    case "NEW_COMMENT":
+                        el.newComment(message['comment']);
+                        break;
+                    case "UPVOTE":
+                        el.upvote(message['commentId']);
+                        break;
+                    case "DOWNVOTE":
+                        el.downvote(message['commentId']);
+                        break;
+                    default:
+                        break;
+                }
+            };
+
+            el.ws.onclose = function(e) {
+                console.log("disconnected...");
+                console.log("reconnecting");
+            };
+        },
+        
+        methods: {
+
+            newComment: function(comment) {
+                console.log("new comment!")
+                let el = this;
+                el.comments.push(comment);
+                el.comments.sort((a, b) => b.timestamp - a.timestamp);
+            },
+
+            upvote: function(commentId) {
+                let el = this;
+                el.comments.forEach(comment => {
+                    if (comment.id === commentId) {
+                        comment.upvotes++;
+                    }
+                });
+
+            },
+
+            downvote: function(commentId) {
+                let el = this;
+                el.comments.forEach(comment => {
+                    if (comment.id === commentId) {
+                        comment.downvotes--;
+                    }
+                });
+            },
+            
+            submit: function(e) {
+                let el = this;
+                e.preventDefault();
+                let form = el.$refs.form;
+
+                fetch(form.action, {
+                    method: form.method,
+                    body: new FormData(form)
+                });
+            }
+        }
+    });
+
+    new Vue({ 
+        el: "#app"
+    });
+
+    {% endverbatim %}
+</script>

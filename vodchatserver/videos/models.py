@@ -10,10 +10,7 @@ class Video(models.Model):
     description = models.CharField(max_length=4096)
     date_created = models.DateTimeField(default=now, editable=False)
     videofile = models.FileField(upload_to='videos/', null=True, verbose_name='')
-
-class Thumbnail(models.Model):
-    video_id = models.ForeignKey(Video, on_delete=models.CASCADE)
-    imagefile = models.FileField(upload_to='thumbnails/', null=True, verbose_name='')
+    thumbnailfile = models.FileField(upload_to='thumbnails/', null=True, verbose_name='')
 
 class Comment(models.Model):
     video_id = models.ForeignKey(Video, on_delete=models.CASCADE)

@@ -1,15 +1,29 @@
-<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-<h1>{{ video.title }}</h1>
-<p>{{ video.creator }}</p>
-<p>{{ video.date_created }}</p>
-<p>{{ video.description }}</p>
-<video id="the-video" width="50%" controls>
-    <source src='{{ MEDIA_URL }}{{ video.videofile}}' type='video/mp4'>
-    Video is unsupported in this browser.
-</video>
-<div id="app">
-    <comment-feed></comment-feed>
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="w3-row">
+    <div class="w3-col w3-panel l8 m6 s12">
+        <video id="the-video" width="100%" height="75%" controls>
+            <source src='{{ MEDIA_URL }}{{ video.videofile}}' type='video/mp4'>
+            Video is unsupported in this browser.
+        </video>
+        <div class="w3-container w3-border-bottom">
+            <h3>{{ video.title }}</h3>
+            <p>{{ video.date_created }}</p>
+        </div>
+        <div class="w3-container w3-border-bottom">
+            <p>{{ video.creator }}</p>
+            <p>{{ video.description }}</p>
+        </div>
+    </div>
+    <div class="w3-col w3-panel l4 m6 s12">
+        <div id="app">
+            <comment-feed></comment-feed>
+        </div>
+    </div>
 </div>
+
 <script>
     const video = document.getElementById("the-video");
     const video_id = "{{ video.id }}";
@@ -22,41 +36,57 @@
         data: function() {
             return {
                 comments: [],
+                activeComments: [],
+                nextCommentIndex: 0,
+                nextComment: null,
+                mouseOverComments: false,
                 votes: [],
                 username: username,
                 video: video,
                 video_id: video_id,
                 ws: new WebSocket('ws://' + window.location.host + '/ws/feed/' + video_id + '/'),
+                commentPlaceholder: `Commenting as ${username}...`
             };
         },
         
         template: `
-            <div>
-                <form name="newCommentForm" ref="form" action="comment" method="POST" v-on:submit="submit">
-                    {% endverbatim %}
-                    {% csrf_token %}
-                    {% verbatim %}
-                    <div>
-                        <strong>{{ username }}:</strong> <textarea name="text"/>
-                        <input type="hidden" name="timestamp" :value="video.currentTime"/>
-                        <input type="hidden" name="video_id" :value="video_id"/>
-                        <input type="submit" value="Post Comment"/>
+        <div class="w3-container">
+            <div class="w3-container">
+            <form name="newCommentForm" ref="form" action="comment" method="POST" v-on:submit="submit">
+                {% endverbatim %}
+                {% csrf_token %}
+                {% if user.is_authenticated %}
+                {% verbatim %}
+                <div>
+                    <input class="w3-input" type="text" name="text" :placeholder="commentPlaceholder" autocomplete="off"/>
+                    <input type="hidden" name="timestamp" :value="video.currentTime"/>
+                    <input type="hidden" name="video_id" :value="video_id"/>
+                    <button type="submit" class="w3-button w3-teal w3-right">Comment</button>
+                </div>
+                {% endverbatim %}
+                {% endif %}
+                {% verbatim %}
+            </form>
+            </div>
+            <form name="voteForm" ref="voteForm" action="vote" method="POST" v-on:submit.prevent>
+                {% endverbatim %}
+                {% csrf_token %}
+                {% verbatim %}
+            </form>
+            <div ref="comments" style="max-height: 75vh; overflow: auto;" @mouseover="setMouseOverComments(true)" @mouseleave="setMouseOverComments(false)">
+                <div v-if="comments.length">
+                    <div class="w3-container w3-border-bottom" v-for="comment in activeComments">
+                        <p>{{ comment.creator }} - {{ toMMSS(comment.timestamp) }}</p>
+                        <strong>{{ comment.text }}</strong>
+                        <div class="w3-right">
+                            <a class="fa fa-thumbs-up w3-hover-sepia" type="button" v-on:click="doUpvote(comment.id, video_id)"></a>
+                            <span>{{ comment.upvotes - comment.downvotes }}</span>
+                            <a class="fa fa-thumbs-down" type="button" v-on:click="doDownvote(comment.id, video_id)"></a>
+                        </div>
                     </div>
-                </form>
-                <form name="voteForm" ref="voteForm" action="vote" method="POST" v-on:submit.prevent>
-                    {% endverbatim %}
-                    {% csrf_token %}
-                    {% verbatim %}
-                </form>
-                <ul v-if="comments.length">
-                    <li v-for="comment in comments">
-                        <strong>{{ comment.creator }}:</strong> 
-                        {{ comment.text }}
-                        <input type="submit" value="UP" v-on:click="doUpvote(comment.id, video_id)"/>{{ comment.upvotes }}
-                        <input type="submit" value="DOWN" v-on:click="doDownvote(comment.id, video_id)"/>{{ comment.downvotes }}
-                    </li>
-                </ul>
-            </div>`,
+                </div>
+            </div>
+        </div>`,
             
         beforeMount: function() {
             let el = this;
@@ -67,6 +97,9 @@
                 .then(comments => {
                     console.log(comments);
                     el.comments = comments; 
+                    if (el.comments && el.comments.length > 0) {
+                        el.nextComment = comments[0];
+                    }
             });
 
             el.ws.onmessage = function(e) {
@@ -90,17 +123,50 @@
 
             el.ws.onclose = function(e) {
                 console.log("disconnected...");
-                console.log("reconnecting");
+            };
+
+            el.video.ontimeupdate = function(event) {
+                while (el.comments[el.nextCommentIndex] && el.comments[el.nextCommentIndex].timestamp <= el.video.currentTime) {
+                    el.activeComments.push(el.comments[el.nextCommentIndex]);
+                    el.nextCommentIndex++;
+                }
+
+                if (!el.mouseOverComments) {
+                    el.$refs.comments.scrollTop = el.$refs.comments.scrollHeight;
+                }
             };
         },
         
         methods: {
 
+            toMMSS: function (timestamp) {
+                    var sec_num = Math.trunc(timestamp); // don't forget the second param
+                    var hours   = Math.floor(sec_num / 3600);
+                    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+                    var seconds = sec_num - (hours * 3600) - (minutes * 60);
+
+                    if (hours   < 10) {hours   = "0"+hours;}
+                    if (minutes < 10) {minutes = "0"+minutes;}
+                    if (seconds < 10) {seconds = "0"+seconds;}
+                return minutes + ':' + seconds;
+            },
+
+            setMouseOverComments: function(trueOrFalse) {
+                let el = this;
+                el.mouseOverComments = trueOrFalse;
+            },
+
             newComment: function(comment) {
                 console.log("new comment!")
                 let el = this;
-                el.comments.push(comment);
-                el.comments.sort((a, b) => b.timestamp - a.timestamp);
+
+                if (comment.timestamp <= el.video.currentTime) {
+                    el.activeComments.push(comment);
+                    el.activeComments.sort((a, b) => a.timestamp - b.timestamp);
+                } else {
+                    el.comments.push(comment);
+                    el.comments.sort((a, b) => a.timestamp - b.timestamp);
+                }
             },
 
             upvote: function(commentId) {
@@ -156,6 +222,8 @@
                     method: form.method,
                     body: new FormData(form)
                 });
+
+                form.text.value = "";
             },
         }
     });
@@ -166,3 +234,5 @@
 
     {% endverbatim %}
 </script>
+
+{% endblock %}

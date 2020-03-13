@@ -36,7 +36,7 @@ def do_login(request):
                 login(request, user)
                 if 'next' in request.GET:
                     return HttpResponseRedirect(request.GET['next'])
-                return HttpResponseRedirect(reverse('videos:upload'))
+                return HttpResponseRedirect('/')
             else:
                 form.add_error(None, 'Unable to log in')
         context['form'] = form

@@ -1,7 +1,21 @@
-<ul>
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="w3-row-padding">
 {% for video in videos %}
-    <li> {{ video.id }} </li>
-{% empty %}
-    <li>No videos.</li>
+    <div class="w3-col w3-panel l3 m4 s6">
+        <a href="watch?video_id={{ video.id }}">
+            <div class="w3-container">
+                <img height="25%" width="100%" src="{{ MEDIA_URL }}{{ video.thumbnailfile }}"></img>
+                <div class="w3-container">
+                    <p><strong>{{ video.title }}</strong></p>
+                    <p>{{ video.creator }} - {{ video.date_created }}</p>
+                </div>
+            </div>
+        </a>
+    </div>
 {% endfor %}
-</ul>
+</div>
+
+{% endblock %}

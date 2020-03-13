@@ -4,7 +4,7 @@ from .models import Video, Comment, Vote
 class UploadVideoForm(forms.ModelForm):
     class Meta:
         model = Video
-        fields = ['title', 'description', 'videofile']
+        fields = ['title', 'description', 'videofile', 'thumbnailfile']
 
 class NewCommentForm(forms.ModelForm):
     class Meta:

@@ -1,3 +1,7 @@
+{% extends "base.html" %}
+
+{% block content %}
+
 <h1>Login</h1>
 <div>{{ form.non_field_errors }}</div>
 <form action="" method="post">
@@ -16,3 +20,5 @@
 </form>
 
 <p>Don't have an account? <a href="{% url 'signup' %}">Create one.</a></p>
+
+{% endblock %}

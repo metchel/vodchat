@@ -14,13 +14,13 @@ def signup(request):
         if form.is_valid():
             try:
               user = User.objects.create_user(
-                form.cleaned_data['username'], 
+                form.cleaned_data['username'],
                 password=form.cleaned_data['password'])
               return HttpResponseRedirect(reverse('login'))
             except IntegrityError:
                 form.add_error('username', 'Username is taken')
 
-        context['form'] = form   
+        context['form'] = form
     return render(request, 'accounts/signup.html', context)
 
 
@@ -29,8 +29,8 @@ def do_login(request):
     if request.method == 'POST':
         form = forms.LoginForm(request.POST)
         if form.is_valid():
-            user = authenticate(request, 
-              username=form.cleaned_data['username'], 
+            user = authenticate(request,
+              username=form.cleaned_data['username'],
               password=form.cleaned_data['password'])
             if user is not None:
                 login(request, user)

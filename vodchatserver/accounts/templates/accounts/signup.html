@@ -1,27 +1,34 @@
 {% extends "base.html" %}
 
+{% load static %}
+
 {% block content %}
 
-<h1>Create Account</h1>
-<form action="" method="post">
+<head>
+  <link rel="stylesheet" href="{% static 'css/accounts.css' %}">
+</head>
+
+<div class="to_center">
+  <h1>Sign Up</h1>
+  <form action="" method="post">
     {% csrf_token %}
     <p>
-      Username: <input type="text" name="username" value="{{form.data.username}}" />
+      <input type="text" name="username" value="{{form.data.username}}" placeholder="Choose a username" />
       {{ form.username.errors }}
     </p>
     <p>
-      Create Password: <input type="password" name="password" />
+      <input type="password" name="password" placeholder="Create a password" />
       {{ form.password.errors }}
     </p>
     <p>
-      Confirm Password: <input type="password" name="password_confirm" />
+      <input type="password" name="password_confirm" placeholder="Confirm your password" />
       {{ form.password_confirm.errors }}
     </p>
     <p>
-      <input type="submit" value="Create" />
+      <input type="submit" value="Create Account" class="w3-button w3-black" id="submit_button" />
     </p>
-</form>
-
-<p>Already have an account? <a href="{% url 'login' %}">Log in.</a></p>
+  </form>
+  <p>Already have an account? <a href="{% url 'login' %}">Log in.</a></p>
+</div>
 
 {% endblock %}

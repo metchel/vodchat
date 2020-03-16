@@ -1,24 +1,31 @@
 {% extends "base.html" %}
 
+{% load static %}
+
 {% block content %}
 
-<h1>Login</h1>
-<div>{{ form.non_field_errors }}</div>
-<form action="" method="post">
+<head>
+  <link rel="stylesheet" href="{% static 'css/accounts.css' %}">
+</head>
+
+<div class="to_center">
+  <h1>Login</h1>
+  {{ form.non_field_errors }}
+  <form action="" method="post">
     {% csrf_token %}
     <p>
-      Username: <input type="text" name="username" />
+      <input type="text" name="username" placeholder="Username" />
       {{ form.username.errors }}
     </p>
     <p>
-      Password: <input type="password" name="password" />
+      <input type="password" name="password" placeholder="Password" />
       {{ form.password.errors }}
     </p>
     <p>
-      <input type="submit" value="Login" />
+      <input type="submit" value="Login" class="w3-button w3-black" id="submit_button" />
     </p>
-</form>
-
-<p>Don't have an account? <a href="{% url 'signup' %}">Create one.</a></p>
+    <p>Don't have an account? <a href="{% url 'signup' %}">Create one.</a></p>
+  </form>
+</div>
 
 {% endblock %}

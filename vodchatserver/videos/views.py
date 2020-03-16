@@ -74,9 +74,9 @@ def get_comments(request):
     try:
         comments = Comment.objects.filter(video_id=video_id).order_by('timestamp')
         comments_list = []
-        
+
         for comment in comments:
-            
+
             upvotes = Vote.objects.filter(video_id=video_id, comment_id=comment.id, vote=1).count()
             downvotes = Vote.objects.filter(video_id=video_id, comment_id=comment.id, vote=-1).count()
 
@@ -116,7 +116,7 @@ def vote(request):
             })
 
             return HttpResponse()
-        else: 
+        else:
             raise Exception("Vote failed")
     else:
         return HttpResponse().status_code(405)

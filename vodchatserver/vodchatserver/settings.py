@@ -136,3 +136,9 @@ CHANNEL_LAYERS = {
 }
 
 LOGIN_URL = '/accounts/login'
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.mailgun.org'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = '...'
+EMAIL_HOST_PASSWORD = '...'

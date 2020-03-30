@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block content %}
+
+<head>
+  <link rel="stylesheet" href="{% static 'css/accounts.css' %}">
+</head>
+
+<div class="to_center">
+  <h1>Reset Password</h1>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <center>
+      <p>
+        <input type="submit" value="Submit" class="w3-button w3-black" id="submit_button" />
+      </p>
+    </center>
+  </form>
+</div>
+{% endblock %}

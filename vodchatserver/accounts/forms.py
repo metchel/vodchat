@@ -1,9 +1,15 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 
 class SignupForm(forms.Form):
     username = forms.CharField(
         error_messages={'required':'Please enter an username.'}
+    )
+
+    email = forms.EmailField(
+        error_messages={'required':'Please enter your email.'}
     )
 
     password = forms.CharField(
@@ -12,14 +18,15 @@ class SignupForm(forms.Form):
     password_confirm = forms.CharField(
         error_messages={'required':'Please confirm you password.'}
     )
-    
+
     def clean(self):
         cleaned_data = super(SignupForm, self).clean()
-        
+
         # Validation involving multiple fields
         if 'password' in cleaned_data and 'password_confirm' in cleaned_data and cleaned_data['password'] != cleaned_data['password_confirm']:
             self.add_error('password_confirm', 'Passwords do not match')
         return cleaned_data
+
 
 class LoginForm(forms.Form):
     username = forms.CharField()

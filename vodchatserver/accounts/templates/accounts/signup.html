@@ -17,6 +17,10 @@
       {{ form.username.errors }}
     </p>
     <p>
+      <input type="text" name="email" value="{{form.data.email}}" placeholder="Enter your email"/>
+      {{ form.email.errors }}
+    </p>
+    <p>
       <input type="password" name="password" placeholder="Create a password" />
       {{ form.password.errors }}
     </p>

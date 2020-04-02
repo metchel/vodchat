@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 
+{% load static %}
+
 {% block content %}
+
+<head>
+  <link rel="stylesheet" href="{% static 'css/videos.css' %}">
+</head>
 
 <div class="w3-row-padding">
 {% for video in videos %}

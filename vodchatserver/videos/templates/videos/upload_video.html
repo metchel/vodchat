@@ -1,13 +1,22 @@
 {% extends "base.html" %}
 
+{% load static %}
+
 {% block content %}
 
-<h1>Upload</h1>
-<form enctype="multipart/form-data" method="POST" action="">
-{% csrf_token %}
-{{ form.as_p }}
-<input type="submit" value="Upload"/>
-</form>
-<p><a href="{% url 'logout'%}">Logout.</a></p>
+<head>
+  <link rel="stylesheet" href="{% static 'css/videos.css' %}">
+</head>
+
+<div class="to_center">
+  <h1>Upload</h1>
+  <form enctype="multipart/form-data" method="POST" action="">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <center>
+      <input type="submit" value="Upload" class="w3-button w3-black" id="submit_button" />
+    </center>
+  </form>
+</div>
 
 {% endblock %}

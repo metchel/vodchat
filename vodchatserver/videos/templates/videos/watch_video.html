@@ -1,15 +1,21 @@
 {% extends "base.html" %}
 
+{% load static %}
+
 {% block content %}
 
-<div class="w3-row">
+<head>
+  <link rel="stylesheet" href="{% static 'css/videos.css' %}">
+</head>
+
+<div class="w3-row my_container">
     <div class="w3-col w3-panel l8 m6 s12">
         <video id="the-video" width="100%" height="75%" controls>
             <source src='{{ MEDIA_URL }}{{ video.videofile}}' type='video/mp4'>
             Video is unsupported in this browser.
         </video>
         <div class="w3-container w3-border-bottom">
-            <h3>{{ video.title }}</h3>
+            <h3><strong>{{ video.title }}</strong></h3>
             <p>{{ video.date_created }}</p>
         </div>
         <div class="w3-container w3-border-bottom">
@@ -32,7 +38,7 @@
     {% verbatim %}
 
     Vue.component('comment-feed', {
-        
+
         data: function() {
             return {
                 comments: [],
@@ -48,7 +54,7 @@
                 commentPlaceholder: `Commenting as ${username}...`
             };
         },
-        
+
         template: `
         <div class="w3-container">
             <div class="w3-container">
@@ -87,7 +93,7 @@
                 </div>
             </div>
         </div>`,
-            
+
         beforeMount: function() {
             let el = this;
 
@@ -96,7 +102,7 @@
                 .then(json => json['comments'])
                 .then(comments => {
                     console.log(comments);
-                    el.comments = comments; 
+                    el.comments = comments;
                     if (el.comments && el.comments.length > 0) {
                         el.nextComment = comments[0];
                     }
@@ -136,7 +142,7 @@
                 }
             };
         },
-        
+
         methods: {
 
             toMMSS: function (timestamp) {
@@ -206,7 +212,7 @@
                 formData.set("comment_id", commentId);
                 formData.set("video_id", videoId);
                 formData.set("vote", vote);
-                
+
                 fetch(form.action, {
                     method: form.method,
                     body: formData
@@ -228,7 +234,7 @@
         }
     });
 
-    new Vue({ 
+    new Vue({
         el: "#app"
     });
 

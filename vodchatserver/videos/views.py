@@ -1,10 +1,12 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect, Http404, JsonResponse
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from .forms import UploadVideoForm, NewCommentForm, VoteForm
-from .models import Video, Comment, Vote
+from .models import Video, Comment, Vote, Watch
+
 import json
 
 def index(request):
@@ -31,6 +33,12 @@ def watch_video(request):
         video_instance = Video.objects.get(pk=video_id)
     except Video.DoesNotExist:
         raise Http404("Video does not exist")
+    
+    if request.user:
+        print("saving...")
+        watch = Watch(video=video_instance, watcher=request.user)
+        watch.save()
+    
     return render(request, 'videos/watch_video.html', { 'video': video_instance })
 
 @login_required
@@ -67,7 +75,10 @@ def add_comment(request):
     elif request.method == 'GET':
         return get_comments(request)
     else:
-        return HttpResponse().status_code(405)
+        response = HttpResponse()
+        response.status_code = 405
+
+        return response
 
 def get_comments(request):
     video_id = request.GET.get('video_id', '')
@@ -119,4 +130,38 @@ def vote(request):
         else:
             raise Exception("Vote failed")
     else:
-        return HttpResponse().status_code(405)
+        response = HttpResponse()
+        response.status_code = 405
+
+        return response
+
+def profile(request):
+    if request.method == 'GET':
+        username = request.GET.get('username')
+        users = User.objects.filter(username=username)
+
+        if len(users) < 1:
+            return Http404("No user {}.".format(username))
+
+        user = users[0]
+        videos = Video.objects.filter(creator_id=user.id)
+        watches = Watch.objects.filter(watcher=user.id).order_by('-datetime')
+
+        return render(request, 'videos/profile.html', { 'videos': videos, 'username': user.username, 'watches': watches })
+    else:
+        response = HttpResponse()
+        response.status_code = 405
+
+        return response
+
+def search(request):
+    if request.method == 'GET':
+        q = request.GET.get('q')
+        videos = Video.objects.filter(title__icontains=q)
+
+        return render(request, 'videos/home.html', { 'videos': videos })
+    else:
+        response = HttpResponse()
+        response.status_code = 405
+
+        return response

@@ -23,3 +23,8 @@ class Vote(models.Model):
     voter = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
     comment_id = models.ForeignKey(Comment, on_delete=models.CASCADE)
     vote = models.IntegerField(default=0)
+
+class Watch(models.Model):
+    video = models.ForeignKey(Video, on_delete=models.CASCADE)
+    watcher = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
+    datetime = models.DateTimeField(default=now, editable=False)

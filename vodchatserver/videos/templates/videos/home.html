@@ -11,16 +11,24 @@
 <div class="w3-row-padding">
 {% for video in videos %}
     <div class="w3-col w3-panel l3 m4 s6">
-        <a href="watch?video_id={{ video.id }}">
             <div class="w3-container">
-                <img height="25%" width="100%" src="{{ MEDIA_URL }}{{ video.thumbnailfile }}"></img>
+                <a href="watch?video_id={{ video.id }}">
+                    <img height="25%" width="100%" src="{{ MEDIA_URL }}{{ video.thumbnailfile }}"></img>
+                </a>
                 <div class="w3-container">
-                    <p><strong>{{ video.title }}</strong></p>
-                    <p>{{ video.creator }} - {{ video.date_created }}</p>
+                    <a href="watch?video_id={{ video.id }}">
+                        <p><strong>{{ video.title }}</strong></p>
+                    </a>
+                    <a href="profile?username={{ video.creator }}">
+                        <p>{{ video.creator }}</p>
+                    </a>
+                    <p>{{ video.date_created }}</p>
                 </div>
             </div>
         </a>
     </div>
+{% empty %}
+    No Videos.
 {% endfor %}
 </div>
 

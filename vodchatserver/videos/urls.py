@@ -8,7 +8,8 @@ urlpatterns = [
     path('comment', views.add_comment, name='comment'),
     path('vote', views.vote, name='vote'),
     path('profile', views.profile, name='profile'),
-    path('search', views.search, name='search')
+    path('search', views.search, name='search'),
+    path('delete', views.delete, name='delete')
 ]
 
 app_name = 'videos'

@@ -1,3 +1,5 @@
+{% load static %}
+
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
@@ -5,22 +7,35 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
-<div class="w3-bar w3-black w3-display-container" style="padding: 8px;">
-    <a href="/" class="w3-bar-item w3-mobile">VODchat</a>
-    <form method="GET" action="/videos/search?" id="search" style="margin: 0; width: 50%" class="w3-display-middle">
-        <input type="text" class="w3-bar-item w3-mobile w3-input w3-border-bottom" placeholder="Search.." name="q" style="height: 38px;  width: 80%; text-color: #fff;">
-        <button type="Submit" class="w3-bar-item w3-mobile w3-button" style="height: 38px; min-width: 14px; width: 20%" form="search"><i class="fa fa-search"></i></button>
+<div class="w3-bar w3-black w3-display-container" style="padding: 0; overflow: visible">
+    <a href="/" class="w3-bar-item w3-mobile">
+        <img src="{% static 'img/the_logo_2.png' %}" height="38" width="38"></img>
+    </a>
+    <form method="GET" action="/videos/search?" id="search" style="margin: 0; width: 30%; padding: 0" class="w3-display-middle">
+        <input type="text" class="w3-bar-item w3-mobile w3-input w3-border-bottom" placeholder="Search.." name="q" style="height: 38px; width: 85%; text-color: #fff;">
+        <button type="Submit" class="w3-bar-item w3-mobile w3-button" style="height: 38px; min-width: 14px; width: 15%" form="search"><i class="fa fa-search"></i></button>
     </form>
     {% if user.is_authenticated %}
-        <div class="w3-right">
-            <a href="/videos/upload" class="w3-bar-item w3-button w3-mobile"><i class="fa fa-upload"></i><span>Upload</span></a>
-            <a href="/videos/profile?username={{ user.username }}" class="w3-bar-item w3-button w3-mobile"><i class="fa fa-user"></i><span>{{ user }}</span></a>
-            <a href="/accounts/logout" class="w3-bar-item w3-button w3-mobile"><i class="fa fa-sign-out"></i><span>Logout</span></a>
+        <div style="position: absolute; right: 0; bottom: 0;">
+            <a href="/videos/upload" class="w3-bar-item w3-button w3-mobile" style="height: 38px"><i class="fa fa-upload"></i></a>
+            <div class="w3-dropdown-hover">
+                <a href="" class="w3-button" style="height: 38px"><i class="fa fa-user"></i></a>
+                <div class="w3-dropdown-content w3-bar-block w3-border" style="right:0">
+                    <strong class="w3-bar-item">{{ user.username }}</strong>
+                    <a href="/videos/profile?username={{ user.username }}" class="w3-bar-item w3-button"><span>Profile</span></a>
+                    <a href="/accounts/logout" class="w3-bar-item w3-button">Logout</a>
+                </div>
+            </div>
         </div>
     {% else %}
-        <div class="w3-right">
-            <a href="/accounts/login" class="w3-bar-item w3-button w3-mobile">Login</a>
-            <a href="/accounts" class="w3-bar-item w3-button w3-mobile">Signup</a>
+        <div style="position: absolute; right: 0; bottom: 0;">
+            <div class="w3-dropdown-hover">
+                <a href="" class="w3-button" style="height: 38px"><i class="fa fa-user"></i></a>
+                <div class="w3-dropdown-content w3-bar-block w3-border" style="right:0">
+                    <a href="/accounts/login" class="w3-bar-item w3-button w3-mobile">Login</a>
+                    <a href="/accounts" class="w3-bar-item w3-button w3-mobile">Signup</a>
+                </div>
+            </div>
         </div>
     {% endif %}
 </div>

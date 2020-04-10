@@ -10,7 +10,7 @@ from .models import Video, Comment, Vote, Watch
 import json
 
 def index(request):
-    videos = Video.objects.all()
+    videos = Video.objects.filter(tombstone=False)
     return render(request, 'videos/home.html', { 'videos': videos })
 
 @login_required
@@ -38,8 +38,10 @@ def watch_video(request):
         print("saving...")
         watch = Watch(video=video_instance, watcher=request.user)
         watch.save()
+
+    play_count = Watch.objects.filter(video_id=video_id).count()
     
-    return render(request, 'videos/watch_video.html', { 'video': video_instance })
+    return render(request, 'videos/watch_video.html', { 'video': video_instance, 'play_count': play_count })
 
 @login_required
 def add_comment(request):
@@ -144,10 +146,16 @@ def profile(request):
             return Http404("No user {}.".format(username))
 
         user = users[0]
-        videos = Video.objects.filter(creator_id=user.id)
+        videos = Video.objects.filter(creator_id=user.id, tombstone=False)
         watches = Watch.objects.filter(watcher=user.id).order_by('-datetime')
 
-        return render(request, 'videos/profile.html', { 'videos': videos, 'username': user.username, 'watches': watches })
+        # The user is requesting to view their own profile.
+        # There should be additional rights e.g. deleting vids.
+        if request.user == user:
+            return render(request, 'videos/self_profile.html', { 'videos': videos, 'username': user.username, 'watches': watches })
+        # The user is requesting to view someone elses profile.
+        else:
+            return render(request, 'videos/profile.html', { 'videos': videos, 'username': user.username, 'watches': watches })
     else:
         response = HttpResponse()
         response.status_code = 405
@@ -157,11 +165,24 @@ def profile(request):
 def search(request):
     if request.method == 'GET':
         q = request.GET.get('q')
-        videos = Video.objects.filter(title__icontains=q)
+        videos = Video.objects.filter(title__icontains=q, tombstone=False)
 
         return render(request, 'videos/home.html', { 'videos': videos })
     else:
         response = HttpResponse()
         response.status_code = 405
 
+        return response
+
+@login_required
+def delete(request):
+    if request.method == 'GET':
+        video_id = request.GET.get('video_id')
+        video = Video.objects.filter(id=video_id)[0]
+        video.tombstone = True
+        video.save()
+        return HttpResponse(json.dumps({ 'id': video_id }))
+    else:
+        response = HttpResponse()
+        response.status_code = 405
         return response

@@ -11,6 +11,7 @@ class Video(models.Model):
     date_created = models.DateTimeField(default=now, editable=False)
     videofile = models.FileField(upload_to='videos/', null=True, verbose_name='')
     thumbnailfile = models.FileField(upload_to='thumbnails/', null=True, verbose_name='')
+    tombstone = models.BooleanField(default=False)
 
 class Comment(models.Model):
     video_id = models.ForeignKey(Video, on_delete=models.CASCADE)

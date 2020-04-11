@@ -15,7 +15,7 @@
                 <div class="w3-col w3-panel l3 m4 s6">
                         <div class="w3-container">
                             <a href="watch?video_id={{ video.id }}">
-                                <img height="25%" width="100%" src="{{ MEDIA_URL }}{{ video.thumbnailfile }}"></img>
+                                <img height="15%" width="100%" src="{{ MEDIA_URL }}{{ video.thumbnailfile }}"></img>
                             </a>
                             <div class="w3-container">
                                 <a href="watch?video_id={{ video.id }}">
@@ -34,15 +34,19 @@
         <h3 class="w3-padding">Watch History</h3>
         {% for watch in watches %}
         <li class="w3-bar" style="height: 10%; width: 100%">
-            <a href="watch?video_id={{ watch.video.id }}">
-                <div class="w3-bar-item">
-                    <img width="100" height="50" src="{{ MEDIA_URL }}{{ watch.video.thumbnailfile }}"></img>
+            <div class="w3-row">
+                <div class="w3-col l4 m4 s4">
+                    <a href="watch?video_id={{ video.id }}">
+                        <img width="100" height="50" src="{{ MEDIA_URL }}{{ watch.video.thumbnailfile }}"></img>
+                    </a>
                 </div>
-                <div class="w3-bar-item">
-                    <p>{{ watch.video.title }}</p>
-                    <p>{{ watch.datetime}}</p>
+                <div class="w3-col l4 m4 s4">
+                    <p style="display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ watch.video.title }}</p>
                 </div>
-            </a>
+                <div class="w3-col l4 m4 s4">
+                    <p style="display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ watch.datetime }}</p>
+                </div>
+            </div>
         </li>
         {% endfor %}
         </ul>

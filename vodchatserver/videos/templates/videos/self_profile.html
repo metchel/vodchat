@@ -8,62 +8,90 @@
   <link rel="stylesheet" href="{% static 'css/videos.css' %}">
 </head>
 <div class="w3-row">
-    <div class="w3-col l3 m4 s12">
-        <ul class="w3-ul w3-card" style="height: 100%; overflow: auto;">
+    <div class="w3-col l9 m8 s12">
+        <ul class="w3-ul" style="height: 100%; overflow: auto;">
+        <h3 style="padding-left: 16px">Video Uploads</h3>
         {% for video in videos %}
-        <li id="video-{{ video.id }}" class="w3-bar" style="box-sizing: content-box;">
-            <div class="w3-row">
+        <li id="video-{{ video.id }}" class="w3-bar">
+            <div class="w3-row w3-border-bottom" style="padding: 8px">
                 <div class="w3-col l4 m4 s4">
-                    <a href="watch?video_id={{ video.id }}">
+                    <a href="javascript:void(0)">
                         <img width="100" height="50" src="{{ MEDIA_URL }}{{ video.thumbnailfile }}"></img>
                     </a>
                 </div>
                 <div class="w3-col l4 m4 s4">
-                    <p>{{ video.title }}</p>
+                    <a href="javascript:void(0)">
+                        <p style="display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ video.title }}</p>
+                    </a>
                 </div>
-                <div class="w3-col l4 m4 s4 w3-right">
-                    <button class="w3-button" onclick="editVideo('{{ video.id }}', '{{ video.name }}')"><i class="fa fa-edit" style="padding: 8px"></i></button>
-                    <button class="w3-button" onclick="deleteVideo('{{ video.id}}', '{{ video.name }}')"><i class="fa fa-trash" style="padding: 8px"></i></button>
+                <div class="w3-col l4 m4 s4">
+                    <button class="w3-button w3-right" onclick="deleteVideo('{{ video.id}}', '{{ video.title }}', '{{ MEDIA_URL }}{{ video.thumbnailfile }}')"><i class="fa fa-trash" style="padding: 8px"></i></button>
                 </div>
             </div>
         </li>
         {% endfor %}
         </ul>
     </div>
-
-    <div class="w3-col l4 m6 s12">
-
+    <div class="w3-col l3 m4 s12 w3-card">
+        <ul class="w3-ul" style="height: 100%; overflow: auto;">
+        <h3 class="w3-padding">Watch History</h3>
+        {% for watch in watches %}
+        <li class="w3-bar" style="height: 10%; width: 100%">
+            <div class="w3-row">
+                <div class="w3-col l4 m4 s4">
+                    <a href="watch?video_id={{ video.id }}">
+                        <img width="100" height="50" src="{{ MEDIA_URL }}{{ watch.video.thumbnailfile }}"></img>
+                    </a>
+                </div>
+                <div class="w3-col l4 m4 s4">
+                    <p style="display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ watch.video.title }}</p>
+                </div>
+                <div class="w3-col l4 m4 s4">
+                    <p style="display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ watch.datetime }}</p>
+                </div>
+            </div>
+        </li>
+        {% endfor %}
+        </ul>
     </div>
 </div>
 
 <div id="confirmDeleteModal" class="w3-modal" style="display: none">
-    <div class="w3-modal-content w3-card">
-        <p>Are you sure?</p>
-        <button class="w3-button" onclick="confirm()">Confirm</button>
-        <button class="w3-button" onclick="cancel()">Cancel</button>
+    <div class="w3-modal-content w3-card w3-panel">
+        <p id="confirmMessage"></p>
+        <div class="w3-panel w3-center">
+            <img id="deleteThumb" width="400" height="200"></img>
+        </div>
+        <button class="w3-button w3-right" onclick="confirm()">Confirm</button>
+        <button class="w3-button w3-right" onclick="cancel()">Cancel</button>
     </div>
 </div>
 
 <script>
 
     const state = {
-        'modal': {
-            'open': false,
-            'videoId': null,
-            'ref': null
-        }
+        modal: {
+            open: false,
+            videoId: null,
+            ref: null
+        },
     };
 
-    function deleteVideo(videoId, videoName) {
-        state.modal.ref = openModal(videoId, videoName);
+    function deleteVideo(videoId, videoName, thumbnail) {
+        state.modal.ref = openModal(videoId, videoName, thumbnail);
     }
 
     function editVideo(videoId, videoName) {
-
+        state.tabs.edit.click();
+        selectVideo(videoId, videoName, videoDescription);
     }
 
-    function openModal(videoId, videoName) {
+    function openModal(videoId, videoName, thumbnail) {
         const confirmDeleteModal = document.getElementById("confirmDeleteModal");
+        const confirmMessage = document.getElementById("confirmMessage");
+        const deleteThumb = document.getElementById("deleteThumb");
+        deleteThumb.src = thumbnail;
+        confirmMessage.innerHTML = "Are you sure you want to delete <strong><em>&quot;" + videoName + "&quot;</em></strong> ?"
         confirmDeleteModal.style.display = 'block';
         state.modal.open = true;
         state.modal.videoId = videoId;

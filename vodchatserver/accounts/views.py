@@ -13,7 +13,7 @@ from django.template.loader import render_to_string
 from .tokens import account_activation_token
 from django.core.mail import EmailMessage
 
-def signup(request):
+def signup(request, require_email_confirmation=False):
     context = {}
     if request.method == 'POST':
         form = forms.SignupForm(request.POST)
@@ -23,19 +23,23 @@ def signup(request):
                 form.cleaned_data['username'],
                 email=form.cleaned_data['email'],
                 password=form.cleaned_data['password'])
-              user.is_active = False
+              user.is_active = not require_email_confirmation
               user.save()
-              current_site = get_current_site(request)
-              email_subject = 'Activate Your Account'
-              message = render_to_string('account_activation/activation.html', {
-                'user': user,
-                'domain': current_site.domain,
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                'token': account_activation_token.make_token(user),})
-              to_email = form.cleaned_data.get('email')
-              email = EmailMessage(email_subject, message, to=[to_email])
-              email.send()
-              return render(request, 'account_activation/activation_sent.html', context)
+              if require_email_confirmation:
+                current_site = get_current_site(request)
+                email_subject = 'Activate Your Account'
+                message = render_to_string('account_activation/activation.html', {
+                    'user': user,
+                    'domain': current_site.domain,
+                    'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                    'token': account_activation_token.make_token(user),})
+                to_email = form.cleaned_data.get('email')
+                email = EmailMessage(email_subject, message, to=[to_email])
+                email.send()
+                return render(request, 'account_activation/activation_sent.html', context)
+              else:
+                login(request, user)
+                return render(request, 'account_activation/activated_successfully.html', context)
             except IntegrityError:
                 form.add_error('username', 'Username is taken')
         context['form'] = form

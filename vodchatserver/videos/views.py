@@ -34,9 +34,11 @@ def watch_video(request):
     except Video.DoesNotExist:
         raise Http404("Video does not exist")
     
-    if request.user:
-        print("saving...")
+    if request.user and isinstance(request.user, User):
         watch = Watch(video=video_instance, watcher=request.user)
+        watch.save()
+    else:
+        watch = Watch(video=video_instance, watcher=None)
         watch.save()
 
     play_count = Watch.objects.filter(video_id=video_id).count()
@@ -107,7 +109,6 @@ def get_comments(request):
 
 @login_required
 def vote(request):
-    print(request.POST)
     if request.method == 'POST':
         form = VoteForm(request.POST)
         if form.is_valid():

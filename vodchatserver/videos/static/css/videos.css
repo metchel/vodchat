@@ -52,5 +52,10 @@ img:hover {
 }
 
 video {
-  background-color: black;
+  background: black;
+  min-width: 100%; 
+  min-height: 100%; 
+  width: auto; 
+  height: auto; 
+  overflow: hidden; 
 }

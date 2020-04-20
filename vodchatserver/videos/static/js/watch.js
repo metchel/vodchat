@@ -150,6 +150,8 @@ function initCommentFeed(commentFeedTemplate) {
                 e.preventDefault();
                 let form = el.$refs.form;
 
+                form.elements["timestamp"].value = el.video.currentTime;
+
                 fetch(form.action, {
                     method: form.method,
                     body: new FormData(form)

@@ -65,6 +65,15 @@
                 {% csrf_token %}
                 {% verbatim %}
             </form>
+            <div class="w3-card w3-panel w3-border-bottom top" v-for="top in topComments">
+                <p> {{ top.rank }} <i class="w3-padding fa fa-star"></i> {{ top.comment.creator }} - {{ toMMSS(top.comment.timestamp) }}</p>
+                <p><strong>{{ top.comment.text }}</strong><p>
+                <div class="w3-right">
+                    <a class="fa fa-thumbs-up w3-hover-sepia" type="button" v-on:click="doUpvote(top.comment.id, video_id)"></a>
+                    <span>{{ top.comment.upvotes - top.comment.downvotes }}</span>
+                    <a class="fa fa-thumbs-down" type="button" v-on:click="doDownvote(top.comment.id, video_id)"></a>
+                </div>
+            </div>
             <div ref="comments" style="max-height: 75vh; overflow: auto;" @mouseover="setMouseOverComments(true)" @mouseleave="setMouseOverComments(false)">
                 <div v-if="comments.length">
                     <div class="w3-container w3-border-bottom" v-for="comment in activeComments">

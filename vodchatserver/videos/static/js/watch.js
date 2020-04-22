@@ -4,9 +4,12 @@ function initCommentFeed(commentFeedTemplate) {
 
         data: function() {
             return {
+                activeComments: [],
                 comments: [],
                 nextCommentIndex: 0,
                 nextComment: null,
+                numTopComments: 3,
+                numBottomComments: 3,
                 mouseOverComments: false,
                 votes: [],
                 username: username,
@@ -19,8 +22,19 @@ function initCommentFeed(commentFeedTemplate) {
 
         computed: {
             activeComments: function() {
-                return this.comments.filter((comment) => 
-                    comment.timestamp <= this.video.currentTime);
+                return this.activeComments;
+            },
+            topComments: function() {
+                const votes = this.comments.map(comment => comment);
+                return votes.filter(comment => comment.upvotes > 0)
+                    .sort((a, b) => (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes))
+                    .slice(0, this.numTopComments)
+                    .map((comment, i) => { 
+                        return {
+                            comment: comment,
+                            rank: i + 1
+                        } 
+                    });
             }
         },
 
@@ -64,6 +78,7 @@ function initCommentFeed(commentFeedTemplate) {
             };
 
             el.video.ontimeupdate = function(event) {
+                console.log("NEW TIME!");
                 while (el.comments[el.nextCommentIndex] && el.comments[el.nextCommentIndex].timestamp <= el.video.currentTime) {
                     el.activeComments.push(el.comments[el.nextCommentIndex]);
                     el.nextCommentIndex++;
@@ -159,6 +174,14 @@ function initCommentFeed(commentFeedTemplate) {
 
                 form.text.value = "";
             },
+
+            checkTop(id) {
+                return topComments.filter(comment => comment.id === id).length > 0;
+            },
+
+            checkBottom(id) {
+                return bottomComments.filter(comment => comment.id === id).length > 0;
+            }
         }
     });
 

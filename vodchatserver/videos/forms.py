@@ -5,6 +5,12 @@ class UploadVideoForm(forms.ModelForm):
     class Meta:
         model = Video
         fields = ['title', 'description', 'videofile', 'thumbnailfile']
+        labels = {
+            'title': "Title",
+            'description': "Description",
+            'videofile': "Video (.mp4, .mov)",
+            'thumbnailfile': "Thumbnail (.jpg, .png)"
+        }
 
 class NewCommentForm(forms.ModelForm):
     class Meta:

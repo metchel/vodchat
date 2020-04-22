@@ -21,9 +21,6 @@ function initCommentFeed(commentFeedTemplate) {
         },
 
         computed: {
-            activeComments: function() {
-                return this.activeComments;
-            },
             topComments: function() {
                 const votes = this.comments.map(comment => comment);
                 return votes.filter(comment => comment.upvotes > 0)
@@ -55,6 +52,8 @@ function initCommentFeed(commentFeedTemplate) {
             });
 
             el.ws.onmessage = function(e) {
+                console.log("Received message");
+                console.log(e.data['message']);
                 const data = JSON.parse(e.data);
                 const message = data['message'];
                 const messageType = message['type'];
@@ -78,7 +77,6 @@ function initCommentFeed(commentFeedTemplate) {
             };
 
             el.video.ontimeupdate = function(event) {
-                console.log("NEW TIME!");
                 while (el.comments[el.nextCommentIndex] && el.comments[el.nextCommentIndex].timestamp <= el.video.currentTime) {
                     el.activeComments.push(el.comments[el.nextCommentIndex]);
                     el.nextCommentIndex++;
@@ -110,12 +108,15 @@ function initCommentFeed(commentFeedTemplate) {
             },
 
             newComment: function(comment) {
-                console.log("new comment!")
-                console.log(comment);
                 let el = this;
 
                 el.comments.push(comment);
                 el.comments.sort((a, b) => a.timestamp - b.timestamp);
+
+                if (comment.timestamp <= el.video.currentTime && !el.comments.includes(comment)) {
+                    el.activeComments.push(comment);
+                    el.activeComments.sort((a, b) => a.timestamp - b.timestamp);
+                }
             },
 
             upvote: function(commentId) {
@@ -166,6 +167,10 @@ function initCommentFeed(commentFeedTemplate) {
                 let form = el.$refs.form;
 
                 form.elements["timestamp"].value = el.video.currentTime;
+
+                if (!form.elements["timestamp"].value) {
+                    form.elements["timestamp"].value = 0;
+                }
 
                 fetch(form.action, {
                     method: form.method,

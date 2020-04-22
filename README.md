@@ -1,7 +1,8 @@
 Video On Demand Chat [ Project for COMP 307 (Web Development) ]
 
 To run the project, enter the vodchat directory, then run:
-
+    
+    python3 manage.py makemigrations
     python3 manage.py migrate
 
 Which will initialize the database with the appropriate tables, and create a new file called db.sqlite3. Then run:
